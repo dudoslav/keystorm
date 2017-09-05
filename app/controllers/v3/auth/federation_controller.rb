@@ -1,3 +1,5 @@
+require 'digest'
+
 module V3
   module Auth
     class FederationController < ApplicationController
@@ -23,6 +25,16 @@ module V3
         @credentials = type.unified_credentials(ENV.select { |name| name.start_with?(*filters) })
         headers[x_subject_token_header_key] = Utils::Tokenator.to_token(credentials.to_hash)
         respond_with token_response
+      end
+
+      def audit_unscoped_tokens
+        Rails.configuration.x.audit.info "Unscoped token #{digest_response_token} (digest) " \
+                                         "from IP #{request.remote_ip} " \
+                                         "for credentials #{credentials}"
+      end
+
+      def digest_response_token
+        Digest::SHA256.base64digest(headers[x_subject_token_header_key])
       end
     end
   end

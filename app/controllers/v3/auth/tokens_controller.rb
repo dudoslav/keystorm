@@ -22,6 +22,16 @@ module V3
 
       private
 
+      def audit_scoped_tokens
+        Rails.configuration.x.audit.info "Scoped token #{digest_response_token} (digest) " \
+                                         "from ip #{request.remote_ip} " \
+                                         "for credentials #{credentials}"
+      end
+
+      def digest_response_token
+        Digest::SHA256.base64digest(@cloud_token)
+      end
+
       def prepare_data
         parameters = request_parameters.to_h.deep_symbolize_keys
         @cloud = Clouds::CloudProxy.new
