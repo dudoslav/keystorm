@@ -10,7 +10,7 @@ module V3
 
       attr_reader :credentials, :cloud, :project_id, :domain, :roles, :project, :catalog
 
-      before_action :prepare_data, :validate_project!, :prepare_response_data
+      before_action :prepare_data, :validate_project!, :prepare_response_data, :validate_expiration!
       after_action :audit_scoped_token
 
       def create
@@ -21,16 +21,6 @@ module V3
       end
 
       private
-
-      def audit_scoped_tokens
-        Rails.configuration.x.audit.info "Scoped token #{digest_response_token} (digest) " \
-                                         "from ip #{request.remote_ip} " \
-                                         "for credentials #{credentials}"
-      end
-
-      def digest_response_token
-        Digest::SHA256.base64digest(@cloud_token)
-      end
 
       def prepare_data
         parameters = request_parameters.to_h.deep_symbolize_keys
