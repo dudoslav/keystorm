@@ -12,7 +12,7 @@ module Auth
         dn = parse_hash_dn!(hash)
         UnifiedCredentials.new(id: Digest::SHA256.hexdigest(dn),
                                email: Rails.configuration.keystorm['voms']['default_email'],
-                               groups: parse_hash_groups!(hash),
+                               groups: Utils::GroupFilter.new.run!(parse_hash_groups!(hash)),
                                authentication: { type: 'federation', method: 'voms' },
                                name: dn,
                                identity: dn,
